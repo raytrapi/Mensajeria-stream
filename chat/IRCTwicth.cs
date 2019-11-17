@@ -14,6 +14,8 @@ namespace Mensajería.chat {
       static public ArrayList listaSeguidores = new ArrayList();
       static public ArrayList listaSuscriptores = new ArrayList();
       private List<string> mensajesEnviar = new List<string>();
+      private static DateTime horaEmision;
+
       public IRCTwicth(string oauth, string canal) {
          this.canal = canal;
          this.oauth = oauth;
@@ -203,7 +205,8 @@ namespace Mensajería.chat {
 
          return respuesta;
       }
-      static public int espectadores(string id_usuario) {
+
+       public int espectadores(string id_usuario) {
          /*
           curl -H 'Client-ID: uo6dggojyb8d6soh92zknwmi5ej1q2' \
          -X GET 'https://api.twitch.tv/helix/streams?first=20'
@@ -215,7 +218,15 @@ namespace Mensajería.chat {
 
          json.cargarJson("https://api.twitch.tv/helix/streams?user_id=" + id_usuario, cabeceras);
          if (json["data"].Length > 0) {
-            respuesta = int.Parse(json["data"][0]["viewer_count"].ToString());
+            if (json["data"][0].ContainsKey("viewer_count")) {
+               respuesta = int.Parse(json["data"][0]["viewer_count"].ToString());
+               DateTime horaEmision = DateTime.Parse(json["data"][0]["started_at"].ToString());
+               if (horaEmision != IRCTwicth.horaEmision) {
+                  IRCTwicth.horaEmision = horaEmision;
+                  eventoNuevaHora nuevaHora = onNuevaHora;
+                  onNuevaHora?.Invoke();
+               }
+            }
          }
 
 
@@ -352,8 +363,24 @@ namespace Mensajería.chat {
          }
          return resultado;*/
       }
-      public bool estaConectado() {
-         return cliente.State==System.Net.WebSockets.WebSocketState.Open;
+      public bool estaConectado {
+         get {
+            return cliente.State == System.Net.WebSockets.WebSocketState.Open;
+         }
       }
+      public bool estaConectando {
+         get {
+            return cliente.State != System.Net.WebSockets.WebSocketState.Open && cliente.State != System.Net.WebSockets.WebSocketState.Closed;
+         }
+      }
+      public double segundosEmision {
+         get {
+            DateTime ahora = DateTime.Now;
+            return ahora.Subtract(horaEmision).TotalSeconds;
+         }
+      }
+
+      public delegate void eventoNuevaHora();
+      public event eventoNuevaHora onNuevaHora;
    }
 }

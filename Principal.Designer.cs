@@ -34,6 +34,9 @@
          this.controlDirecto = new System.Windows.Forms.Timer(this.components);
          this.panelMensajes = new System.Windows.Forms.Panel();
          this.controlGitter = new System.Windows.Forms.Timer(this.components);
+         this.horaLímiteToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+         this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripSeparator();
+         this.horaLimite = new System.Windows.Forms.TextBox();
          this.menuBandeja.SuspendLayout();
          this.SuspendLayout();
          // 
@@ -49,10 +52,12 @@
          this.menuBandeja.ImageScalingSize = new System.Drawing.Size(19, 19);
          this.menuBandeja.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.mensajeDeBienvenidaToolStripMenuItem,
+            this.toolStripMenuItem1,
+            this.horaLímiteToolStripMenuItem,
             this.toolStripSeparator1,
             this.cerrarToolStripMenuItem});
          this.menuBandeja.Name = "menuBandeja";
-         this.menuBandeja.Size = new System.Drawing.Size(232, 58);
+         this.menuBandeja.Size = new System.Drawing.Size(232, 88);
          // 
          // mensajeDeBienvenidaToolStripMenuItem
          // 
@@ -100,11 +105,33 @@
          this.controlGitter.Interval = 1000;
          this.controlGitter.Tick += new System.EventHandler(this.timer1_Tick);
          // 
+         // horaLímiteToolStripMenuItem
+         // 
+         this.horaLímiteToolStripMenuItem.Name = "horaLímiteToolStripMenuItem";
+         this.horaLímiteToolStripMenuItem.Size = new System.Drawing.Size(231, 24);
+         this.horaLímiteToolStripMenuItem.Text = "Hora límite";
+         this.horaLímiteToolStripMenuItem.Click += new System.EventHandler(this.horaLímiteToolStripMenuItem_Click);
+         // 
+         // toolStripMenuItem1
+         // 
+         this.toolStripMenuItem1.Name = "toolStripMenuItem1";
+         this.toolStripMenuItem1.Size = new System.Drawing.Size(228, 6);
+         // 
+         // horaLimite
+         // 
+         this.horaLimite.Font = new System.Drawing.Font("Roboto", 11.26957F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+         this.horaLimite.Location = new System.Drawing.Point(651, 503);
+         this.horaLimite.Name = "horaLimite";
+         this.horaLimite.Size = new System.Drawing.Size(272, 29);
+         this.horaLimite.TabIndex = 2;
+         this.horaLimite.Leave += new System.EventHandler(this.horaLimite_Leave);
+         // 
          // Principal
          // 
          this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
          this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
          this.ClientSize = new System.Drawing.Size(1648, 778);
+         this.Controls.Add(this.horaLimite);
          this.Controls.Add(this.panelMensajes);
          this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
          this.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
@@ -121,6 +148,7 @@
          this.MouseUp += new System.Windows.Forms.MouseEventHandler(this.Principal_MouseUp);
          this.menuBandeja.ResumeLayout(false);
          this.ResumeLayout(false);
+         this.PerformLayout();
 
       }
 
@@ -135,5 +163,8 @@
       private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
       private System.Windows.Forms.Panel panelMensajes;
       private System.Windows.Forms.Timer controlGitter;
+      private System.Windows.Forms.ToolStripSeparator toolStripMenuItem1;
+      private System.Windows.Forms.ToolStripMenuItem horaLímiteToolStripMenuItem;
+      private System.Windows.Forms.TextBox horaLimite;
    }
 }

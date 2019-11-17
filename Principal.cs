@@ -13,6 +13,8 @@ using System.Configuration;
 
 namespace Mensajería {
    public partial class Principal : Form {
+      const int ESPERA_ENTRE_CONEXIONES =10;
+
       int numMensajes = 0;
       int ultimoId = 0;
       bool debug = false;
@@ -30,6 +32,9 @@ namespace Mensajería {
       bool mostrarSeguidores = true;
       bool mostrarSuscriptores = true;
       controles.Espectadores controlEspectador;
+
+      bool nuevaConexión = false;
+      DateTime ultimaConexión;
       //MySql.Data.MySqlClient.MySqlConnection conexion = null;
 
       public Principal(bool debug=false) {
@@ -37,11 +42,12 @@ namespace Mensajería {
          this.debug = debug;
          this.TransparencyKey = Color.FromArgb(1,1,1);
          this.BackColor = Color.FromArgb(1, 1, 1);
-         
+
          /*if (conexion == null) {
             conexion = new MySql.Data.MySqlClient.MySqlConnection("Database="+System.Configuration.ConfigurationManager.AppSettings["base_datos"] +";Data Source="+ System.Configuration.ConfigurationManager.AppSettings["servidor"] + ";User Id="+ System.Configuration.ConfigurationManager.AppSettings["usuario"]+ ";Password="+ System.Configuration.ConfigurationManager.AppSettings["clave"]);
             //conexion.Open();
          }/**/
+         ultimaConexión = DateTime.Now;
          tamañoEscritorio = Screen.PrimaryScreen.WorkingArea.Size;
          this.Height = tamañoEscritorio.Height - 50;
          this.Top = tamañoEscritorio.Height - this.Height - 10;
@@ -74,32 +80,39 @@ namespace Mensajería {
 
          irc = new chat.IRCTwicth(Configuracion.parametro("oauth"), Configuracion.parametro("canal"));
          if (debug) {
-            MessageBox.Show("En modo depuracion");
+            //MessageBox.Show("En modo depuracion");
          }
          irc.conectar(!debug);/**/
+         irc.onNuevaHora += nuevaHora;
          /*mostrarEspectadores = false;
          mostrarSeguidores = false;
          mostrarSuscriptores = false;/**/
-         espectadores = chat.IRCTwicth.espectadores(Configuracion.parametro("id_usuario"));
+         espectadores = irc.espectadores(Configuracion.parametro("id_usuario"));
          seguidores = chat.IRCTwicth.seguidores(Configuracion.parametro("id_usuario"));
          suscriptores = chat.IRCTwicth.suscriptores(Configuracion.parametro("id_usuario"));
-         controlEspectador = new controles.Espectadores();
+         controlEspectador = new controles.Espectadores(irc.segundosEmision);
          Controls.Add(controlEspectador);
          controlEspectador.Visible = true;
          controlEspectador.Top = tamañoEscritorio.Height - controlEspectador.Height;
          controlEspectador.Left = 650;
          controlEspectador.espectadores = espectadores;
-         //nuevoMensaje("Lorem Ipsum is simply", 0);
-         //nuevoSuscriptor(chat.IRCTwicth.listaSuscriptores[1].ToString());
-         //irc.mensaje = "Comenzamos";
-         /*nuevoEspectador(espectadores);
-         nuevoSeguidor("Juan");
-         fugaEspectador(espectadores);
-         nuevoSuscriptor("Pepe");
-         /**/
-         //chat.IRCTwicth.infoEspectadores(Configuracion.parametro("id_usuario"));
+
+         //Cogemos del registro la información de bienvenida
+         mensajeBienvenida=(String)Microsoft.Win32.Registry.GetValue("HKEY_CURRENT_USER\\Software\\PrexDirecto\\Mensajeria", "Bienvenida",Principal.mensajeBienvenida);
+
+         horaLimite.Text = DateTime.Now.ToShortDateString()+" "+ DateTime.Now.ToShortTimeString();
+         horaLimite.Left = tamañoEscritorio.Width - horaLimite.Width - 10;
+         horaLimite.Top = tamañoEscritorio.Height - 325;
+         horaLimite.Visible = false;
 
       }
+
+      private void nuevaHora() {
+         if (controlEspectador != null && irc != null) {
+            controlEspectador.nuevaHora = irc.segundosEmision;
+         }
+      }
+
       ~Principal() {
          //conexion.Close();
       }
@@ -204,7 +217,18 @@ namespace Mensajería {
 
       private void controlDirecto_Tick(object sender, EventArgs e) {
          try {
-            int controlEspectadores = chat.IRCTwicth.espectadores(Configuracion.parametro("id_usuario"));
+            if (!irc.estaConectado && !irc.estaConectando) {
+               irc.conectar(!debug);
+            }
+               
+         }catch{
+
+         }
+         try {
+
+
+
+            int controlEspectadores = irc.espectadores(Configuracion.parametro("id_usuario"));
             int controlSeguidores = chat.IRCTwicth.seguidores(Configuracion.parametro("id_usuario"));
             int controlSuscriptores = chat.IRCTwicth.suscriptores(Configuracion.parametro("id_usuario"));
 
@@ -215,7 +239,7 @@ namespace Mensajería {
                      controlEspectador.nuevo = true;
                   }
                   if (!debug) {
-                     irc.mensaje = mensajeBienvenida;
+                     nuevaConexión = true;
                   }
                } else {
                   if (mostrarEspectadores) {
@@ -245,7 +269,12 @@ namespace Mensajería {
          } catch {
 
          }
-
+         if(nuevaConexión && DateTime.Now.Subtract(ultimaConexión).TotalSeconds > ESPERA_ENTRE_CONEXIONES) {
+            if (!debug) {
+               irc.mensaje = mensajeBienvenida;
+            }
+            nuevaConexión = false;
+         }
       }
       private void nuevoEspectador(int espectadores) {
          try {
@@ -340,6 +369,19 @@ namespace Mensajería {
          string mensaje = chat.Gitter.leerMensaje(Configuracion.parametro("gitter_sala"));
          if (mensaje.Length > 0) {
             nuevoMensaje(mensaje, 0);
+         }
+      }
+
+      private void horaLímiteToolStripMenuItem_Click(object sender, EventArgs e) {
+         horaLimite.Visible = true;
+         horaLimite.Focus();
+      }
+
+      private void horaLimite_Leave(object sender, EventArgs e) {
+         horaLimite.Visible = false;
+         DateTime fechaLimite;
+         if(DateTime.TryParse(horaLimite.Text, out fechaLimite)) {
+            controlEspectador.horaLimite = fechaLimite.Subtract(DateTime.Now).TotalSeconds;
          }
       }
    }

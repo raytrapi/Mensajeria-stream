@@ -25,6 +25,7 @@ namespace Mensajería {
 
       private void bCambiar_Click(object sender, EventArgs e) {
          Principal.mensajeBienvenida= mensaje.Text;
+         Microsoft.Win32.Registry.SetValue("HKEY_CURRENT_USER\\Software\\PrexDirecto\\Mensajeria", "Bienvenida",mensaje.Text);
          this.Close();
       }
    }

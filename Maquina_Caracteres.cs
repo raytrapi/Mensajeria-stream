@@ -12,6 +12,7 @@ namespace Mensajería {
       ArrayList caracteresComodin = new ArrayList();
       ArrayList caracteresCadena = new ArrayList();
       char[] nulos = new char[] { '\n' };
+      bool noEntreComillas = true;
       public Maquina_Caracteres(String texto) {
          this.texto = texto;
          caracteresComodin.Add('\\');
@@ -28,9 +29,14 @@ namespace Mensajería {
          String resultado = "";
          while (posicionActual < texto.Length) {
             char c = texto[posicionActual++];
-            foreach (char final in finales) {
-               if (final == c) {
-                  return new KeyValuePair<char, String>(final, resultado);
+            if (caracteresCadena.IndexOf(c)>=0) {
+               noEntreComillas = !noEntreComillas;
+            }
+            if (noEntreComillas) {
+               foreach (char final in finales) {
+                  if (final == c) {
+                     return new KeyValuePair<char, String>(final, resultado);
+                  }
                }
             }
             bool correcto = true;
