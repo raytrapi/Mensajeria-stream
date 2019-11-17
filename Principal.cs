@@ -101,9 +101,9 @@ namespace Mensajería {
          mensajeBienvenida=(String)Microsoft.Win32.Registry.GetValue("HKEY_CURRENT_USER\\Software\\PrexDirecto\\Mensajeria", "Bienvenida",Principal.mensajeBienvenida);
 
          horaLimite.Text = DateTime.Now.ToShortDateString()+" "+ DateTime.Now.ToShortTimeString();
-         horaLimite.Left = tamañoEscritorio.Width - horaLimite.Width - 10;
-         horaLimite.Top = tamañoEscritorio.Height - 325;
-         horaLimite.Visible = false;
+         panelHoraLimite.Left = tamañoEscritorio.Width - panelHoraLimite.Width - 20;
+         panelHoraLimite.Top = tamañoEscritorio.Height - 325;
+         panelHoraLimite.Visible = false;
 
       }
 
@@ -373,12 +373,12 @@ namespace Mensajería {
       }
 
       private void horaLímiteToolStripMenuItem_Click(object sender, EventArgs e) {
-         horaLimite.Visible = true;
+         panelHoraLimite.Visible = true;
          horaLimite.Focus();
       }
 
       private void horaLimite_Leave(object sender, EventArgs e) {
-         horaLimite.Visible = false;
+         panelHoraLimite.Visible = false;
          DateTime fechaLimite;
          if(DateTime.TryParse(horaLimite.Text, out fechaLimite)) {
             controlEspectador.horaLimite = fechaLimite.Subtract(DateTime.Now).TotalSeconds;
