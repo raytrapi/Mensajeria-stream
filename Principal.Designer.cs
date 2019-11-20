@@ -28,17 +28,18 @@
          this.botonNotificacion = new System.Windows.Forms.NotifyIcon(this.components);
          this.menuBandeja = new System.Windows.Forms.ContextMenuStrip(this.components);
          this.mensajeDeBienvenidaToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+         this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripSeparator();
+         this.horaLímiteToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
          this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
          this.cerrarToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
          this.agregador = new System.Windows.Forms.Timer(this.components);
          this.controlDirecto = new System.Windows.Forms.Timer(this.components);
          this.panelMensajes = new System.Windows.Forms.Panel();
          this.controlGitter = new System.Windows.Forms.Timer(this.components);
-         this.horaLímiteToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-         this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripSeparator();
          this.horaLimite = new System.Windows.Forms.TextBox();
          this.panelHoraLimite = new System.Windows.Forms.Panel();
          this.label1 = new System.Windows.Forms.Label();
+         this.marquesina = new System.Windows.Forms.Label();
          this.menuBandeja.SuspendLayout();
          this.panelHoraLimite.SuspendLayout();
          this.SuspendLayout();
@@ -68,6 +69,18 @@
          this.mensajeDeBienvenidaToolStripMenuItem.Size = new System.Drawing.Size(231, 24);
          this.mensajeDeBienvenidaToolStripMenuItem.Text = "Mensaje de Bienvenida";
          this.mensajeDeBienvenidaToolStripMenuItem.Click += new System.EventHandler(this.mensajeDeBienvenidaToolStripMenuItem_Click);
+         // 
+         // toolStripMenuItem1
+         // 
+         this.toolStripMenuItem1.Name = "toolStripMenuItem1";
+         this.toolStripMenuItem1.Size = new System.Drawing.Size(228, 6);
+         // 
+         // horaLímiteToolStripMenuItem
+         // 
+         this.horaLímiteToolStripMenuItem.Name = "horaLímiteToolStripMenuItem";
+         this.horaLímiteToolStripMenuItem.Size = new System.Drawing.Size(231, 24);
+         this.horaLímiteToolStripMenuItem.Text = "Hora límite";
+         this.horaLímiteToolStripMenuItem.Click += new System.EventHandler(this.horaLímiteToolStripMenuItem_Click);
          // 
          // toolStripSeparator1
          // 
@@ -108,18 +121,6 @@
          this.controlGitter.Interval = 1000;
          this.controlGitter.Tick += new System.EventHandler(this.timer1_Tick);
          // 
-         // horaLímiteToolStripMenuItem
-         // 
-         this.horaLímiteToolStripMenuItem.Name = "horaLímiteToolStripMenuItem";
-         this.horaLímiteToolStripMenuItem.Size = new System.Drawing.Size(231, 24);
-         this.horaLímiteToolStripMenuItem.Text = "Hora límite";
-         this.horaLímiteToolStripMenuItem.Click += new System.EventHandler(this.horaLímiteToolStripMenuItem_Click);
-         // 
-         // toolStripMenuItem1
-         // 
-         this.toolStripMenuItem1.Name = "toolStripMenuItem1";
-         this.toolStripMenuItem1.Size = new System.Drawing.Size(228, 6);
-         // 
          // horaLimite
          // 
          this.horaLimite.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
@@ -154,11 +155,24 @@
          this.label1.Text = "Termina en:";
          this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
          // 
+         // marquesina
+         // 
+         this.marquesina.AutoSize = true;
+         this.marquesina.BackColor = System.Drawing.SystemColors.ControlLightLight;
+         this.marquesina.Font = new System.Drawing.Font("Roboto", 13.77391F, ((System.Drawing.FontStyle)((System.Drawing.FontStyle.Bold | System.Drawing.FontStyle.Italic))), System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+         this.marquesina.Location = new System.Drawing.Point(732, 196);
+         this.marquesina.Name = "marquesina";
+         this.marquesina.Size = new System.Drawing.Size(132, 28);
+         this.marquesina.TabIndex = 4;
+         this.marquesina.Text = "marquesina";
+         this.marquesina.Visible = false;
+         // 
          // Principal
          // 
          this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
          this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
          this.ClientSize = new System.Drawing.Size(1648, 778);
+         this.Controls.Add(this.marquesina);
          this.Controls.Add(this.panelHoraLimite);
          this.Controls.Add(this.panelMensajes);
          this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
@@ -178,6 +192,7 @@
          this.panelHoraLimite.ResumeLayout(false);
          this.panelHoraLimite.PerformLayout();
          this.ResumeLayout(false);
+         this.PerformLayout();
 
       }
 
@@ -197,5 +212,6 @@
       private System.Windows.Forms.TextBox horaLimite;
       private System.Windows.Forms.Panel panelHoraLimite;
       private System.Windows.Forms.Label label1;
+      private System.Windows.Forms.Label marquesina;
    }
 }

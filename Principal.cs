@@ -104,7 +104,7 @@ namespace Mensajería {
          panelHoraLimite.Left = tamañoEscritorio.Width - panelHoraLimite.Width - 20;
          panelHoraLimite.Top = tamañoEscritorio.Height - 325;
          panelHoraLimite.Visible = false;
-
+         nuevoEspectador();
       }
 
       private void nuevaHora() {
@@ -237,6 +237,7 @@ namespace Mensajería {
                   if (mostrarEspectadores) {
                      //nuevoEspectador(controlEspectadores);
                      controlEspectador.nuevo = true;
+                     nuevoEspectador();
                   }
                   if (!debug) {
                      nuevaConexión = true;
@@ -275,9 +276,10 @@ namespace Mensajería {
             }
             nuevaConexión = false;
          }
+         nuevaHora();
       }
-      private void nuevoEspectador(int espectadores) {
-         try {
+      private void nuevoEspectador(){//int espectadores) {
+         /*try {
             Alerta imagen = imagenEspectador;
             if (imagen == null) {
                imagen = new Alerta();
@@ -293,6 +295,26 @@ namespace Mensajería {
          }catch(Exception ex){
             System.Diagnostics.Trace.WriteLine(ex.Message);
 
+         }/**/
+         if (!marquesina.Visible) {
+            Timer temporizadorMarquesina = new Timer();
+            //string titulo = irc.titulo;
+            marquesina.Text = irc.titulo;
+            marquesina.Left = tamañoEscritorio.Width;
+            marquesina.Top = tamañoEscritorio.Height - marquesina.Height;
+            //double velocidad=
+            temporizadorMarquesina.Interval = 1;//(int)(2000/(tamañoEscritorio.Width + marquesina.Width));1000/30
+            temporizadorMarquesina.Enabled = true;
+            temporizadorMarquesina.Tick += (object sender, EventArgs e) => {
+                  //System.Diagnostics.Trace.WriteLine(marquesina.Left+">"+ -marquesina.Width);
+                  if (marquesina.Left > -marquesina.Width) {
+                     marquesina.Left-=5;
+                  } else {
+                     marquesina.Visible = false;
+                     ((Timer)sender).Dispose();
+                  }
+               };
+            marquesina.Visible = true;
          }
       }
       private void fugaEspectador(int espectadores) {
@@ -366,10 +388,10 @@ namespace Mensajería {
       }
 
       private void timer1_Tick(object sender, EventArgs e) {
-         string mensaje = chat.Gitter.leerMensaje(Configuracion.parametro("gitter_sala"));
-         if (mensaje.Length > 0) {
+        /*string mensaje = chat.Gitter.leerMensaje(Configuracion.parametro("gitter_sala"));
+        if (mensaje.Length > 0) {
             nuevoMensaje(mensaje, 0);
-         }
+        }/**/
       }
 
       private void horaLímiteToolStripMenuItem_Click(object sender, EventArgs e) {

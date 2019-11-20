@@ -15,6 +15,7 @@ namespace Mensajería.chat {
       static public ArrayList listaSuscriptores = new ArrayList();
       private List<string> mensajesEnviar = new List<string>();
       private static DateTime horaEmision;
+      private static string _titulo="";
 
       public IRCTwicth(string oauth, string canal) {
          this.canal = canal;
@@ -226,6 +227,10 @@ namespace Mensajería.chat {
                   eventoNuevaHora nuevaHora = onNuevaHora;
                   onNuevaHora?.Invoke();
                }
+               string titulo = json["data"][0]["title"].ToString();
+               if (titulo != IRCTwicth._titulo) {
+                  IRCTwicth._titulo = titulo;
+               }
             }
          }
 
@@ -375,11 +380,18 @@ namespace Mensajería.chat {
       }
       public double segundosEmision {
          get {
+            if (horaEmision.Year < DateTime.Now.Year) {
+               return 0;
+            }
             DateTime ahora = DateTime.Now;
             return ahora.Subtract(horaEmision).TotalSeconds;
          }
       }
-
+      public string titulo {
+         get {
+            return _titulo;
+         }
+      }
       public delegate void eventoNuevaHora();
       public event eventoNuevaHora onNuevaHora;
    }
