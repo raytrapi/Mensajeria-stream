@@ -89,7 +89,7 @@ namespace Mensajería {
          string[] palabras = _mensaje.Split(' ');
          //300 palabras por minuto
          destructor.Interval=((int)(((double)palabras.Length /200 ) * 60)*1000)+2000;
-         int ancho = texto.Width;
+         int ancho = texto.Width-texto.Padding.Left-texto.Padding.Right;
          List<string> frases = new List<string>();
          string fraseActual = "";
          float tamañoFrase = 0;
@@ -101,7 +101,7 @@ namespace Mensajería {
                tamañoFrase+= (tamañoFrase > 0 ?tamañoEspacio : 0) + tamañoPalabra;
             } else {
                frases.Add(fraseActual);
-               fraseActual = "";
+               fraseActual = " "+palabra;
                tamañoFrase = 0;
             }
          }

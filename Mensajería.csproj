@@ -69,7 +69,7 @@
       <DependentUpon>Bienvenida.cs</DependentUpon>
     </Compile>
     <Compile Include="chat\Gitter.cs" />
-    <Compile Include="chat\IRCTwicth.cs" />
+    <Compile Include="chat\Twitch.cs" />
     <Compile Include="Configuracion.cs" />
     <Compile Include="controles\Espectadores.cs">
       <SubType>UserControl</SubType>

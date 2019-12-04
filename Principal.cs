@@ -13,7 +13,7 @@ using System.Configuration;
 
 namespace Mensajería {
    public partial class Principal : Form {
-      const int ESPERA_ENTRE_CONEXIONES =10;
+      const int ESPERA_ENTRE_CONEXIONES =60;
 
       int numMensajes = 0;
       int ultimoId = 0;
@@ -23,7 +23,7 @@ namespace Mensajería {
       static public int suscriptores = 0;
       static public string mensajeBienvenida = "Bienvenido al canal :D";
       Size tamañoEscritorio;
-      chat.IRCTwicth irc;
+      chat.Twitch twitch;
       Alerta imagenEspectador = null;
       Alerta imagenFugaEspectador =null;
       Alerta imagenNuevoSeguidor = null;
@@ -78,38 +78,46 @@ namespace Mensajería {
          //json.getJson("http://laravel/prueba.json",new System.Collections.ArrayList());
          //MessageBox.Show(((Entidad)(json["tercero"][1]["3.2"]))["3.2.1"].ToString());
 
-         irc = new chat.IRCTwicth(Configuracion.parametro("oauth"), Configuracion.parametro("canal"));
+         twitch = new chat.Twitch(Configuracion.parametro("oauth"), Configuracion.parametro("canal"));
          if (debug) {
             //MessageBox.Show("En modo depuracion");
          }
-         irc.conectar(!debug);/**/
-         irc.onNuevaHora += nuevaHora;
+         twitch.onNuevaHora += nuevaHora;
          /*mostrarEspectadores = false;
          mostrarSeguidores = false;
          mostrarSuscriptores = false;/**/
-         espectadores = irc.espectadores(Configuracion.parametro("id_usuario"));
-         seguidores = chat.IRCTwicth.seguidores(Configuracion.parametro("id_usuario"));
-         suscriptores = chat.IRCTwicth.suscriptores(Configuracion.parametro("id_usuario"));
-         controlEspectador = new controles.Espectadores(irc.segundosEmision);
+         espectadores = twitch.espectadores(Configuracion.parametro("id_usuario"));
+         seguidores = chat.Twitch.seguidores(Configuracion.parametro("id_usuario"));
+         suscriptores = chat.Twitch.suscriptores(Configuracion.parametro("id_usuario"));
+         controlEspectador = new controles.Espectadores(twitch.segundosEmision);
          Controls.Add(controlEspectador);
          controlEspectador.Visible = true;
          controlEspectador.Top = tamañoEscritorio.Height - controlEspectador.Height;
          controlEspectador.Left = 650;
          controlEspectador.espectadores = espectadores;
+         chat.Twitch.infoUsuario("prex_directo");
+         chat.Twitch.infoCanal();
+         twitch.conectar(!debug);
+         twitch.conectarTopicos(!debug);/**/
 
          //Cogemos del registro la información de bienvenida
-         mensajeBienvenida=(String)Microsoft.Win32.Registry.GetValue("HKEY_CURRENT_USER\\Software\\PrexDirecto\\Mensajeria", "Bienvenida",Principal.mensajeBienvenida);
+         mensajeBienvenida = (String)Microsoft.Win32.Registry.GetValue("HKEY_CURRENT_USER\\Software\\PrexDirecto\\Mensajeria", "Bienvenida",Principal.mensajeBienvenida);
 
          horaLimite.Text = DateTime.Now.ToShortDateString()+" "+ DateTime.Now.ToShortTimeString();
          panelHoraLimite.Left = tamañoEscritorio.Width - panelHoraLimite.Width - 20;
          panelHoraLimite.Top = tamañoEscritorio.Height - 325;
          panelHoraLimite.Visible = false;
-         nuevoEspectador();
+         //nuevoEspectador();
+
+         //nuevoSeguidor("dd");
+
+         //chat.Twitch.infoBits();
+         //chat.Twitch.infoExtensiones();
       }
 
       private void nuevaHora() {
-         if (controlEspectador != null && irc != null) {
-            controlEspectador.nuevaHora = irc.segundosEmision;
+         if (controlEspectador != null && twitch != null) {
+            controlEspectador.nuevaHora = twitch.segundosEmision;
          }
       }
 
@@ -217,8 +225,8 @@ namespace Mensajería {
 
       private void controlDirecto_Tick(object sender, EventArgs e) {
          try {
-            if (!irc.estaConectado && !irc.estaConectando) {
-               irc.conectar(!debug);
+            if (!twitch.estaConectado && !twitch.estaConectando) {
+               twitch.conectar(!debug);
             }
                
          }catch{
@@ -228,9 +236,9 @@ namespace Mensajería {
 
 
 
-            int controlEspectadores = irc.espectadores(Configuracion.parametro("id_usuario"));
-            int controlSeguidores = chat.IRCTwicth.seguidores(Configuracion.parametro("id_usuario"));
-            int controlSuscriptores = chat.IRCTwicth.suscriptores(Configuracion.parametro("id_usuario"));
+            int controlEspectadores = twitch.espectadores(Configuracion.parametro("id_usuario"));
+            int controlSeguidores = chat.Twitch.seguidores(Configuracion.parametro("id_usuario"));
+            int controlSuscriptores = chat.Twitch.suscriptores(Configuracion.parametro("id_usuario"));
 
             if (controlEspectadores != espectadores) {
                if (controlEspectadores > espectadores) {
@@ -253,7 +261,7 @@ namespace Mensajería {
             controlEspectador.espectadores = espectadores;
             if (controlSeguidores > seguidores && (imagenNuevoSeguidor == null || !imagenNuevoSeguidor.Visible)) {
                if (mostrarSeguidores) {
-                  nuevoSeguidor(chat.IRCTwicth.listaSeguidores[chat.IRCTwicth.listaSeguidores.Count - seguidores - 1].ToString());
+                  nuevoSeguidor(chat.Twitch.listaSeguidores[chat.Twitch.listaSeguidores.Count - seguidores - 1].ToString());
                }
                seguidores++;
             }else if(controlSeguidores < seguidores) {
@@ -261,7 +269,7 @@ namespace Mensajería {
             }
             if (controlSuscriptores > suscriptores && (imagenNuevoSuscriptor == null || !imagenNuevoSuscriptor.Visible)) {
                if (mostrarSuscriptores) {
-                  nuevoSuscriptor(chat.IRCTwicth.listaSuscriptores[chat.IRCTwicth.listaSuscriptores.Count - suscriptores - 1].ToString());
+                  nuevoSuscriptor(chat.Twitch.listaSuscriptores[chat.Twitch.listaSuscriptores.Count - suscriptores - 1].ToString());
                }
                suscriptores++;
             } else if (controlSuscriptores < suscriptores) {
@@ -272,7 +280,7 @@ namespace Mensajería {
          }
          if(nuevaConexión && DateTime.Now.Subtract(ultimaConexión).TotalSeconds > ESPERA_ENTRE_CONEXIONES) {
             if (!debug) {
-               irc.mensaje = mensajeBienvenida;
+               twitch.mensaje = mensajeBienvenida;
             }
             nuevaConexión = false;
          }
@@ -298,8 +306,8 @@ namespace Mensajería {
          }/**/
          if (!marquesina.Visible) {
             Timer temporizadorMarquesina = new Timer();
-            //string titulo = irc.titulo;
-            marquesina.Text = irc.titulo;
+            //string titulo = twitch.titulo;
+            marquesina.Text = twitch.titulo;
             marquesina.Left = tamañoEscritorio.Width;
             marquesina.Top = tamañoEscritorio.Height - marquesina.Height;
             //double velocidad=
@@ -380,7 +388,7 @@ namespace Mensajería {
       private void mensajeDeBienvenidaToolStripMenuItem_Click(object sender, EventArgs e) {
          Bienvenida mensaje = new Bienvenida();
          mensaje.ShowDialog();
-         //irc.mensaje = mensajeBienvenida;
+         //twitch.mensaje = mensajeBienvenida;
       }
 
       private void Principal_FormClosing(object sender, FormClosingEventArgs e) {

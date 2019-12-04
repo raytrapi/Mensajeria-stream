@@ -162,7 +162,7 @@
          this.marquesina.Font = new System.Drawing.Font("Roboto", 13.77391F, ((System.Drawing.FontStyle)((System.Drawing.FontStyle.Bold | System.Drawing.FontStyle.Italic))), System.Drawing.GraphicsUnit.Point, ((byte)(0)));
          this.marquesina.Location = new System.Drawing.Point(732, 196);
          this.marquesina.Name = "marquesina";
-         this.marquesina.Size = new System.Drawing.Size(132, 28);
+         this.marquesina.Size = new System.Drawing.Size(128, 27);
          this.marquesina.TabIndex = 4;
          this.marquesina.Text = "marquesina";
          this.marquesina.Visible = false;

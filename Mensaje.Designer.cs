@@ -109,7 +109,7 @@
          this.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
          this.Controls.Add(this.panel2);
          this.Controls.Add(this.panel1);
-         this.Margin = new System.Windows.Forms.Padding(5, 5, 5, 5);
+         this.Margin = new System.Windows.Forms.Padding(5);
          this.Name = "Mensaje";
          this.Padding = new System.Windows.Forms.Padding(3, 2, 3, 2);
          this.Size = new System.Drawing.Size(644, 100);
