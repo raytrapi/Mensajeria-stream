@@ -13,9 +13,23 @@ namespace Mensajería {
             configuracion = new Dictionary<string, string>();
             cargar(System.Configuration.ConfigurationManager.AppSettings["ficheroIRC"]);
          }
-         return configuracion[clave];
+         if (configuracion.ContainsKey(clave)) {
+            return configuracion[clave];
+         } else {
+            return "";
+         }
       }
-      
+      static public string parametro(string clave, string defecto) {
+         if (configuracion == null) {
+            configuracion = new Dictionary<string, string>();
+            cargar(System.Configuration.ConfigurationManager.AppSettings["ficheroIRC"]);
+         }
+         if (configuracion.ContainsKey(clave)) {
+            return configuracion[clave];
+         } else {
+            return defecto;
+         }
+      }
 
       static private void cargar(string ruta) {
 

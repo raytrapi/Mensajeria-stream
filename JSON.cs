@@ -50,6 +50,7 @@ namespace Mensajería {
       public override string ToString() {
          return valor.ToString();
       }
+      
    }
    class JSON {
       private System.Collections.Generic.Dictionary<String, Entidad> _json;
@@ -119,7 +120,8 @@ namespace Mensajería {
       }
       public Entidad this[string clave] {
          get {
-            if (_json.Count > 0) {
+            
+            if (_json!=null && _json.Count > 0) {
                return _json[clave];
             } else {
                return null;

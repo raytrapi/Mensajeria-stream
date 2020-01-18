@@ -16,6 +16,21 @@ namespace Mensajería.controles {
       int horasFin = 0;
       int minutosFin = 0;
       int segundosFin = 0;
+      double _opacity = 1;
+      double opacity {
+         get {
+            return _opacity;
+         }
+         set {
+            if (value > 1) {
+               _opacity = 1;
+            }else if (value < 0) {
+               _opacity = 0;
+            } else {
+               _opacity = value;
+            }
+         }
+      }
       public Espectadores(double _segundos=0) {
          InitializeComponent();
          imagen.Image = Image.FromFile(Configuracion.parametro("imagen_ojo"));

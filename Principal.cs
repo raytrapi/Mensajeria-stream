@@ -28,6 +28,7 @@ namespace Mensajería {
       Alerta imagenFugaEspectador =null;
       Alerta imagenNuevoSeguidor = null;
       Alerta imagenNuevoSuscriptor = null;
+      Alerta imagenBit = null;
       bool mostrarEspectadores = true;
       bool mostrarSeguidores = true;
       bool mostrarSuscriptores = true;
@@ -56,7 +57,7 @@ namespace Mensajería {
          this.TopLevel = true;
          this.TopMost = true;
 
-         //JSON json = new JSON();
+         JSON json = new JSON();
          /*
           {
              "primero " :"1",
@@ -77,6 +78,32 @@ namespace Mensajería {
          //json.parse("{ \"primero \" :\"1\",\"segundo\":2,\"tercero\":[{\"3.1\":4},{\"3.2\":{\"3.2.1\":\"final\"}}]}");
          //json.getJson("http://laravel/prueba.json",new System.Collections.ArrayList());
          //MessageBox.Show(((Entidad)(json["tercero"][1]["3.2"]))["3.2.1"].ToString());
+         /*string textoJSON = System.IO.File.ReadAllText("cheer.txt");
+         json.parse(textoJSON);
+         JSON json2 = new JSON();
+         json2.parse(json["data"]["message"].ToString());
+         //dynamic json2 = Newtonsoft.Json.Linq.JObject.Parse(textoJSON);
+         //nuevoSeguidor("Soy yo");
+         //nuevoSuscriptor("Nombre");
+         nuevoBit(json2["data"]["user_name"].ToString(), (double)((Entidad) json2["data"]["bits_used"]).valor);/**/
+         /*nuevoMensaje("1 Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s.", 0.7);
+         nuevoMensaje("2 Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard %15940% dummy text ever since the 1500s.Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s.", 0.7);
+         nuevoMensaje("3 Lorem Ipsum is", 0.7);
+         nuevoMensaje("4 Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s.Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s.", 0.7);
+         /**/
+
+         /*extensionTwitch.ExtensionTwitch extension = new extensionTwitch.ExtensionTwitch();
+         Controls.Add(extension); 
+         extension.Top = 200;
+         extension.Left = 700;
+         extension.Width = 600;
+         extension.Height = 400;
+         extension.Visible = true;
+
+
+         seguidores = chat.Twitch.seguidores(Configuracion.parametro("id_usuario"));
+
+         return;/**/
 
          twitch = new chat.Twitch(Configuracion.parametro("oauth"), Configuracion.parametro("canal"));
          if (debug) {
@@ -86,15 +113,23 @@ namespace Mensajería {
          /*mostrarEspectadores = false;
          mostrarSeguidores = false;
          mostrarSuscriptores = false;/**/
+         controlDirecto.Enabled = false;
+         controlDirecto2.Enabled = false;
          espectadores = twitch.espectadores(Configuracion.parametro("id_usuario"));
          seguidores = chat.Twitch.seguidores(Configuracion.parametro("id_usuario"));
          suscriptores = chat.Twitch.suscriptores(Configuracion.parametro("id_usuario"));
          controlEspectador = new controles.Espectadores(twitch.segundosEmision);
+         controlDirecto.Enabled = true;
+         controlDirecto2.Enabled = true;
          Controls.Add(controlEspectador);
          controlEspectador.Visible = true;
          controlEspectador.Top = tamañoEscritorio.Height - controlEspectador.Height;
-         controlEspectador.Left = 650;
+         controlEspectador.Left = 1200;//650;
          controlEspectador.espectadores = espectadores;
+         controlEspectador.MouseMove +=sobreControlEspectador;
+         controlEspectador.MouseLeave +=fueraControlEspectador;
+         controlEspectador.MouseDown += pulsadoControlEspectador;
+         controlEspectador.MouseUp += soltadoControlEspectador;
          chat.Twitch.infoUsuario("prex_directo");
          chat.Twitch.infoCanal();
          twitch.conectar(!debug);
@@ -113,6 +148,17 @@ namespace Mensajería {
 
          //chat.Twitch.infoBits();
          //chat.Twitch.infoExtensiones();
+
+         /*controles.ListaTareas listaTareas = new controles.ListaTareas();
+         this.Controls.Add(listaTareas);
+         listaTareas.añadirTarea("Instalar Mono");
+         listaTareas.añadirTarea("Plantear un problema con Ionic");
+         listaTareas.Left = 1000;
+         listaTareas.Top = tamañoEscritorio.Height - listaTareas.Height;
+         listaTareas.Visible = true;/**/
+         /*listaTareas.Resize = () => {
+            this.
+         }*/
       }
 
       private void nuevaHora() {
@@ -133,7 +179,7 @@ namespace Mensajería {
          obtenerDatosMySQL();
       }
       private void obtenerDatosMySQL() {
-         if (numMensajes < 3) {
+         if (numMensajes <= 3) {
             string limite = " limit 1";
             string parametros = (ultimoId != 0 ? " and m.id>" + ultimoId : " and m.id >= (select id from mensajes order by id desc limit 1)");
             //string parametros = (ultimoId != 0 ? " and m.id>" + ultimoId : " and m.id >= 681");
@@ -148,9 +194,9 @@ namespace Mensajería {
 
             for (int i=0;i<datos.Length;i++) {
                Dictionary<string, object> fila = datos[i];
-               //if (ultimoId != 0) {
-               nuevoMensaje((string)fila["mensaje"], (double)fila["puntuacion"], fila["avatar"].ToString(), (string)fila["usuario"]);
-               //}
+               if (ultimoId != 0) {
+                  nuevoMensaje((string)fila["mensaje"], (double)fila["puntuacion"], fila["avatar"].ToString(), (string)fila["usuario"]);
+               }
 
                ultimoId = (int)fila["id"];
             }
@@ -159,24 +205,53 @@ namespace Mensajería {
          }
       }
       void nuevoMensaje(string texto,double puntuacion, string avatar= "https://static-cdn.jtvnw.net/jtv_user_pictures/b170a410-b459-4154-9d5e-4f0901e58c25-profile_image-300x300.png", string usuario="YO") {
+         if (numMensajes > 2) {
+            Timer t = new Timer();
+            t.Interval = 200;
+            t.Enabled = true;
+            t.Tick += (object sender, EventArgs e) => {
+               if (numMensajes < 3) {
+                  nuevoMensaje(texto, puntuacion, avatar, usuario);
+                  t.Dispose();
+               }
+               borrarMensajes();
+            };
+            return;
+         } 
          this.TopLevel = true;
          this.TopMost = true;
          Mensaje mensaje = new Mensaje();
-         mensaje.Dock = DockStyle.Bottom;
+         //mensaje.Dock = DockStyle.Bottom;
          //string mensajeTexto = texto;
          //int tiempoMuestreo = 10000 + (texto.Length > 200 ? 5000 : 0);
 
-         if (puntuacion> 0.7) {
+         if (puntuacion > 0.7) {
             mensaje.mensaje("No puedo reproducir lo que me han dicho", avatar, usuario);
             mensaje.colorFondo(Color.FromArgb(255, 0, 0));
          } else {
             mensaje.mensaje(texto, avatar, usuario);
          }
+         foreach(Control control in panelMensajes.Controls) {
+            control.Top -= mensaje.Height;
+         }
+         mensaje.Top = tamañoEscritorio.Height-mensaje.Height;
+         mensaje.opacidad = 0.7;
          mensaje.onBorrar += borrarControl;
          mensaje.MouseMove += Principal_MouseMove;
          mensaje.MouseLeave += Principal_MouseLeave;
+         mensaje.Resize += cambiarTamañoMensaje;
          panelMensajes.Controls.Add(mensaje);
          numMensajes++;
+         
+      }
+      private void cambiarTamañoMensaje(object sender, EventArgs e) {
+         //bool noEncontrado = true;
+         int top = tamañoEscritorio.Height;
+         for (int i= panelMensajes.Controls.Count-1; i>=0 ;i--) {
+            Control control = panelMensajes.Controls[i];
+            control.Top = top-control.Height;
+            top = control.Top;
+         }
       }
       /*private async Task obtenerDatosAsync() {
          HttpClient cliente = new HttpClient();
@@ -186,6 +261,20 @@ namespace Mensajería {
          info.Content
          
       }/**/
+      void borrarMensajes() {
+         bool noEncontrado = true;
+         for (int i = 0; i < panelMensajes.Controls.Count && noEncontrado; i++) {
+            if (panelMensajes.Controls[i].GetType().Name == "Mensaje") {
+               Invalidate();
+               noEncontrado = false;
+               Mensaje m = (Mensaje)panelMensajes.Controls[i];
+               if (m.borrado) {
+                  panelMensajes.Controls.Remove(m);
+                  numMensajes--;
+               }
+            }
+         }
+      }
       void borrarControl(Mensaje control) {
          for(int i = 0; i < panelMensajes.Controls.Count; i++) {
             if (panelMensajes.Controls[i].GetType().Name == "Mensaje") {
@@ -199,7 +288,7 @@ namespace Mensajería {
       }
 
       private void Principal_MouseMove(object sender, MouseEventArgs e) {
-         this.Opacity = 1;
+         //((Mensaje)sender).opacidad = 1;
          for (int i = 0; i < panelMensajes.Controls.Count; i++) {
             if (panelMensajes.Controls[i].GetType().Name == "Mensaje") {
                ((Mensaje)panelMensajes.Controls[i]).detenerReloj();
@@ -208,7 +297,7 @@ namespace Mensajería {
       }
 
       private void Principal_MouseLeave(object sender, EventArgs e) {
-         this.Opacity = 0.8;
+         //((Mensaje)sender).opacidad = 0.8;
          for (int i = 0; i < panelMensajes.Controls.Count; i++) {
             if (panelMensajes.Controls[i].GetType().Name == "Mensaje") {
                ((Mensaje)panelMensajes.Controls[i]).reanudarReloj();
@@ -217,13 +306,14 @@ namespace Mensajería {
       }
 
       private void Principal_MouseUp(object sender, MouseEventArgs e) {
-         this.Opacity = 1;
+         //this.Opacity = 1;
 
          
          
       }
 
       private void controlDirecto_Tick(object sender, EventArgs e) {
+         controlDirecto.Enabled = false;
          try {
             if (!twitch.estaConectado && !twitch.estaConectando) {
                twitch.conectar(!debug);
@@ -237,7 +327,7 @@ namespace Mensajería {
 
 
             int controlEspectadores = twitch.espectadores(Configuracion.parametro("id_usuario"));
-            int controlSeguidores = chat.Twitch.seguidores(Configuracion.parametro("id_usuario"));
+            
             int controlSuscriptores = chat.Twitch.suscriptores(Configuracion.parametro("id_usuario"));
 
             if (controlEspectadores != espectadores) {
@@ -259,14 +349,7 @@ namespace Mensajería {
             }
             espectadores = controlEspectadores;
             controlEspectador.espectadores = espectadores;
-            if (controlSeguidores > seguidores && (imagenNuevoSeguidor == null || !imagenNuevoSeguidor.Visible)) {
-               if (mostrarSeguidores) {
-                  nuevoSeguidor(chat.Twitch.listaSeguidores[chat.Twitch.listaSeguidores.Count - seguidores - 1].ToString());
-               }
-               seguidores++;
-            }else if(controlSeguidores < seguidores) {
-               seguidores = controlSeguidores;
-            }
+            
             if (controlSuscriptores > suscriptores && (imagenNuevoSuscriptor == null || !imagenNuevoSuscriptor.Visible)) {
                if (mostrarSuscriptores) {
                   nuevoSuscriptor(chat.Twitch.listaSuscriptores[chat.Twitch.listaSuscriptores.Count - suscriptores - 1].ToString());
@@ -280,11 +363,32 @@ namespace Mensajería {
          }
          if(nuevaConexión && DateTime.Now.Subtract(ultimaConexión).TotalSeconds > ESPERA_ENTRE_CONEXIONES) {
             if (!debug) {
-               twitch.mensaje = mensajeBienvenida;
+               //twitch.mensaje = mensajeBienvenida;
             }
             nuevaConexión = false;
          }
+         if (chat.Twitch.nuevosSeguidores.Count > 0) {
+            if (mostrarSeguidores) {
+               string seguidor = chat.Twitch.nuevosSeguidores[0];
+               chat.Twitch.nuevosSeguidores.RemoveAt(0);
+               nuevoSeguidor(seguidor);
+            }
+         }
          nuevaHora();
+         controlDirecto.Enabled = true;
+      }
+      private void controlDirecto2_Tick(object sender, EventArgs e) {
+         controlDirecto2.Enabled = false;
+         int controlSeguidores = chat.Twitch.seguidores(Configuracion.parametro("id_usuario"));
+         
+         if (controlSeguidores > seguidores && (imagenNuevoSeguidor == null || !imagenNuevoSeguidor.Visible)) {
+            
+            seguidores++;
+         } else if (controlSeguidores < seguidores) {
+            seguidores = controlSeguidores;
+         }
+         controlDirecto2.Enabled = true;
+
       }
       private void nuevoEspectador(){//int espectadores) {
          /*try {
@@ -311,7 +415,7 @@ namespace Mensajería {
             marquesina.Left = tamañoEscritorio.Width;
             marquesina.Top = tamañoEscritorio.Height - marquesina.Height;
             //double velocidad=
-            temporizadorMarquesina.Interval = 1;//(int)(2000/(tamañoEscritorio.Width + marquesina.Width));1000/30
+            /*temporizadorMarquesina.Interval = 1;//(int)(2000/(tamañoEscritorio.Width + marquesina.Width));1000/30
             temporizadorMarquesina.Enabled = true;
             temporizadorMarquesina.Tick += (object sender, EventArgs e) => {
                   //System.Diagnostics.Trace.WriteLine(marquesina.Left+">"+ -marquesina.Width);
@@ -322,7 +426,7 @@ namespace Mensajería {
                      ((Timer)sender).Dispose();
                   }
                };
-            marquesina.Visible = true;
+            marquesina.Visible = true;/**/
          }
       }
       private void fugaEspectador(int espectadores) {
@@ -331,11 +435,13 @@ namespace Mensajería {
             if (imagen == null) {
                imagen = new Alerta();
                imagen.urlImagen = Configuracion.parametro("imagen_fuga_espectador");
-               imagen.ancho = 300;
-               imagen.alto = 200;
+               int w = 300;
+               int h = 200;
+               imagen.ancho = w;
+               imagen.alto = h;
                imagen.tiempo = 4100;
                //imagen.localizacion = new Point(((Width / 2) - (imagen.Width / 2)) + ((imagen.Width / 2)+20), 0);
-               imagen.localizacion = new Point(panelMensajes.Width + 10 + imagen.ancho+10, tamañoEscritorio.Height - imagen.alto - 20);
+               imagen.localizacion = new Point(panelMensajes.Width + 10 + w+10, tamañoEscritorio.Height - h - 20);
                Controls.Add(imagen);
             }
             imagen.mostrar("VAYA!! ahora somos " + espectadores.ToString() + "");
@@ -346,38 +452,97 @@ namespace Mensajería {
       }
       private void nuevoSeguidor(string usuario) {
          try {
-            Alerta imagen = imagenNuevoSeguidor;
-            if (imagen == null) {
-               imagen = new Alerta();
-               imagen.urlImagen = Configuracion.parametro("imagen_nuevo_seguidor");
-               imagen.ancho = 400;
-               imagen.alto = 250;
-               imagen.tiempo = 6000;
-               imagen.localizacion = new Point(((Width / 2) - (imagen.Width / 2)), tamañoEscritorio.Height - 280 - imagen.alto);
-               imagen.fuente = new Font("Roboto", 22);
-               Controls.Add(imagen);
+            if (imagenNuevoSeguidor == null) {
+               imagenNuevoSeguidor = crearAlerta("seguidor");
             }
-            imagen.mostrar(usuario+"\r\n se ha unido. \r\nHOLA");
+            Controls.Add(imagenNuevoSeguidor);
+            //Lobster
+            //Dancing Script
+            imagenNuevoSeguidor.mostrar("#F Lobster:50:198:255:193\n" + usuario+ "\n#F Roboto:20:255:255:255\nse ha unido\n#F Dancing Script:30:255:255:255\nBienvenido");
          } catch (Exception ex) {
             System.Diagnostics.Trace.WriteLine(ex.Message);
 
          }
          
       }
+      private void nuevoBit(string usuario, double bits) {
+         try {
+            //Alerta imagen = imagenBit;
+            if (imagenBit == null) {
+               imagenBit = crearAlerta("bit");
+            }
+            Controls.Add(imagenBit);
+            //Lobster
+            //Dancing Script
+            String texto = Configuracion.parametro("bit.texto", "");
+            texto = texto.Replace("%USUARIO%", usuario).Replace("%BITS%",bits.ToString()).Replace("\\n","\n");
+            imagenBit.mostrar(texto);
+         } catch (Exception ex) {
+            System.Diagnostics.Trace.WriteLine(ex.Message);
+
+         }
+
+      }
+      Alerta crearAlerta(string alias) {
+         try {
+            Alerta imagen = new Alerta();
+            
+            //imagen = new Alerta();
+            imagen.urlImagen = Configuracion.parametro(alias+".imagen");
+            int w = int.Parse(Configuracion.parametro(alias + ".w", "400"));
+            imagen.ancho = w;
+            string hS = Configuracion.parametro(alias + ".h");
+            string x = Configuracion.parametro(alias + ".x");
+            string y = Configuracion.parametro(alias + ".y");
+            int h = 0;
+            if (hS != "") {
+
+               h = int.Parse(hS);
+            } else {
+               h = (int)(((double)imagen.sizeImagen.Width / (double)imagen.sizeImagen.Height) * (double)w); ;
+            }
+            imagen.alto = h;
+            imagen.tiempo = int.Parse(Configuracion.parametro(alias + ".tiempo","6000"));
+            /*imagen.localizacion = new Point(
+               (x!=""?int.Parse(x):((Width / 2) - (imagen.Width / 2))), 
+               (y!=""?int.Parse(y):tamañoEscritorio.Height - 280 - imagen.Height));/**/
+            imagen.fuente = new Font("Roboto", 30);
+            imagen.Padding = new Padding(imagen.Padding.Left, int.Parse(Configuracion.parametro(alias + ".padding.top", "50")), imagen.Padding.Right, imagen.Padding.Bottom);
+            if (x != "") {
+               imagen.Left = int.Parse(x);
+               if (imagen.Left < 0) {
+                  imagen.Left = tamañoEscritorio.Width - imagen.Width - imagen.Padding.Right;
+               } else {
+                  imagen.Left += imagen.Padding.Left;
+               }
+            } else {
+               imagen.Left = tamañoEscritorio.Width - imagen.Width - imagen.Padding.Right;
+            }
+            if (y != "") {
+               imagen.Top = int.Parse(y);
+               if (imagen.Top < 0) {
+                  imagen.Top = tamañoEscritorio.Height - imagen.Height - imagen.Padding.Bottom;
+               } else {
+                  imagen.Top += imagen.Padding.Top;
+               }
+            } else {
+               imagen.Top = tamañoEscritorio.Height - imagen.Height - imagen.Padding.Bottom;
+            }
+            imagen.Top -= imagen.Margin.Bottom;
+            return imagen;
+         } catch (Exception ex) {
+            System.Diagnostics.Trace.WriteLine(ex.Message);
+
+         }
+         return null;
+      }
       private void nuevoSuscriptor(string usuario) {
          try {
-            Alerta imagen = imagenNuevoSeguidor;
-            if (imagen == null) {
-               imagen = new Alerta();
-               imagen.urlImagen = Configuracion.parametro("imagen_nuevo_suscriptor");
-               imagen.ancho = 400;
-               imagen.alto = 250;
-               imagen.tiempo = 6000;
-               imagen.localizacion = new Point(((Width / 2)  - (imagen.Width / 2))+390, tamañoEscritorio.Height - 280 - imagen.alto);
-               imagen.fuente = new Font("Roboto", 22);
-               Controls.Add(imagen);
+            if (imagenNuevoSuscriptor == null) {
+               imagenNuevoSuscriptor = crearAlerta("suscriptor");
             }
-            imagen.mostrar(usuario + "\r\n se ha suscrito al canal");
+            Controls.Add(imagenNuevoSuscriptor);
+            imagenNuevoSuscriptor.mostrar("#F Lobster:50:255:190:190\n" + usuario + "\n#F Lobster:30:255:255:255\nse ha suscrito");
          } catch (Exception ex) {
             System.Diagnostics.Trace.WriteLine(ex.Message);
 
@@ -414,5 +579,20 @@ namespace Mensajería {
             controlEspectador.horaLimite = fechaLimite.Subtract(DateTime.Now).TotalSeconds;
          }
       }
+      private void sobreControlEspectador(object sender, EventArgs e) {
+         //((Control)sender).Top = tamañoEscritorio.Height-5;
+      }
+      private void fueraControlEspectador(object sender, EventArgs e) {
+
+         //((Control)sender).Top = tamañoEscritorio.Height - ((Control)sender).Height;
+      }
+      private void pulsadoControlEspectador(object sender, EventArgs e) {
+         //((Control)sender).Top = tamañoEscritorio.Height - 5;
+      }
+      private void soltadoControlEspectador(object sender, EventArgs e) {
+
+         //((Control)sender).Top = tamañoEscritorio.Height - ((Control)sender).Height;
+      }
+
    }
 }

@@ -13,6 +13,7 @@ namespace Mensajería {
       ArrayList caracteresCadena = new ArrayList();
       char[] nulos = new char[] { '\n' };
       bool noEntreComillas = true;
+      bool noCaracterCorte = true;
       public Maquina_Caracteres(String texto) {
          this.texto = texto;
          caracteresComodin.Add('\\');
@@ -27,24 +28,35 @@ namespace Mensajería {
       }
       public KeyValuePair<char, String> cogerCadena(char[] finales) {
          String resultado = "";
+         String anterior = "";
          while (posicionActual < texto.Length) {
             char c = texto[posicionActual++];
-            if (caracteresCadena.IndexOf(c)>=0) {
-               noEntreComillas = !noEntreComillas;
-            }
-            if (noEntreComillas) {
-               foreach (char final in finales) {
-                  if (final == c) {
-                     return new KeyValuePair<char, String>(final, resultado);
+
+            if (caracteresComodin.IndexOf(c) >= 0 && noCaracterCorte) {
+               if (noCaracterCorte) {
+                  noCaracterCorte = false;
+                  //anterior = "" + c;
+               }
+            } else {
+               if (caracteresCadena.IndexOf(c) >= 0 && noCaracterCorte) {
+                  noEntreComillas = !noEntreComillas;
+               }
+               if (noEntreComillas) {
+                  foreach (char final in finales) {
+                     if (final == c) {
+                        return new KeyValuePair<char, String>(final, resultado);
+                     }
                   }
                }
-            }
-            bool correcto = true;
-            for(int i=0;i<nulos.Length && correcto; i++) {
-               correcto = c != nulos[i];
-            }
-            if (correcto) { 
-               resultado += c;
+               bool correcto = true;
+               for (int i = 0; i < nulos.Length && correcto; i++) {
+                  correcto = c != nulos[i];
+               }
+               if (correcto) {
+                  resultado += anterior+c;
+               }
+               anterior = "";
+               noCaracterCorte = true;
             }
          }
          return new KeyValuePair<char, String>('\0',resultado);

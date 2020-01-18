@@ -18,6 +18,7 @@ namespace Mensajería.chat {
       private List<string> mensajesEnviar = new List<string>();
       private static DateTime horaEmision;
       private static string _titulo="";
+      static bool seguidoresControlados = false;
 
       public Twitch(string oauth, string canal) {
          this.canal = canal;
@@ -128,7 +129,7 @@ namespace Mensajería.chat {
                                     string texto = coincidencias.Groups["6"].Value;
                                     double puntuacion = toxicidad(texto);
 
-                                    tratarMensaje(texto, puntuacion);
+                                    texto=tratarMensaje(texto, puntuacion);
                                     if (enBaseDatos) {
                                        BD.ejecutar("insert into mensajes (idEstado, idUsuario, mensaje,puntuacion) values (1," + idUsuario + ", '" + texto.Replace("\"", "\\\"") + "'," + puntuacion.ToString().Replace(",", ".") + ")");
                                     }
@@ -165,92 +166,68 @@ namespace Mensajería.chat {
                System.Text.RegularExpressions.Regex regEx = new System.Text.RegularExpressions.Regex(@"(.*)\!(.*)@(.*)\.tmi\.twitch\.tv (PRIVMSG|PART) #(.*) :(.*)", System.Text.RegularExpressions.RegexOptions.RightToLeft);
 
                ArraySegment<byte> buffer = new ArraySegment<byte>(bufferByte);
+               System.Windows.Forms.Timer ping = new System.Windows.Forms.Timer();
+               ping.Interval = 15000;
+               ping.Enabled = true;
+               ping.Tick += async (object sender, EventArgs e) => {
+                  if (clienteTopic.State == System.Net.WebSockets.WebSocketState.Open) {
+                     await clienteTopic.SendAsync(new ArraySegment<byte>(arrayBytes("{\"type\":\"PING\"}")), System.Net.WebSockets.WebSocketMessageType.Text, true, cancellationToken2);
+                  } else {
+                     //await clienteTopic.CloseAsync();
+                     await clienteTopic.ConnectAsync(new Uri("wss://pubsub-edge.twitch.tv"), cancellationToken2);
+                     if (clienteTopic.State == System.Net.WebSockets.WebSocketState.Open) {
+                        await clienteTopic.SendAsync(new ArraySegment<byte>(arrayBytes("{\"type\":\"RECONNECT\"}")), System.Net.WebSockets.WebSocketMessageType.Text, true, cancellationToken2);
+                     }
+                  }
+               };
 
-               await clienteTopic.SendAsync(new ArraySegment<byte>(arrayBytes("{\"type\":\"PING\"}")), System.Net.WebSockets.WebSocketMessageType.Text, true, cancellationToken2);
                /*await cliente.SendAsync(new ArraySegment<byte>(arrayBytes("NICK " + canal)), System.Net.WebSockets.WebSocketMessageType.Text, true, cancellationToken);*/
+               await clienteTopic.SendAsync(new ArraySegment<byte>(arrayBytes("{\"type\":\"PING\"}")), System.Net.WebSockets.WebSocketMessageType.Text, true, cancellationToken2);
                System.Net.WebSockets.WebSocketReceiveResult resultado = await clienteTopic.ReceiveAsync(buffer, cancellationToken2);
                while (clienteTopic.State == System.Net.WebSockets.WebSocketState.Open) {
                   string[] respuestas = arrayString(bufferByte, resultado.Count).Replace("\n", "\r").Replace("\r\r", "\r").Split('\r');
                   for (int i = 0; i < respuestas.Length; i++) {
                      string respuesta = respuestas[i];
-                     if (respuesta == ESPERAS[0]) {
-                        estado++;
-                     }
                      string mensaje = "";
                      if (respuesta.Length > 0) {
                         switch (estado) {
-                           case 1:
+                           case 0:
                               estado++;
-                              //mensaje = "{\"type\":\"LISTEN\",\"data\":{\"topics\": [\"channel-bits-events-v2." + Configuracion.parametro("id_usuario") + "\"],\"auth_token\": \"" + Configuracion.parametro("oauth") + "\"}}";
-                              mensaje = "{\"type\":\"LISTEN\",\"data\":{\"topics\": [\"whispers." + Configuracion.parametro("id_usuario") + "\"],\"auth_token\": \"" + Configuracion.parametro("oauth") + "\"}}";
-                              
+                              mensaje = "{\"type\":\"LISTEN\",\"nonce\":\"\",\"data\":{\"topics\": [\"channel-bits-events-v2." + Configuracion.parametro("id_usuario") + "\",\"whispers." + Configuracion.parametro("id_usuario") + "\",\"channel-subscribe-events-v1."+ Configuracion.parametro("id_usuario") + "\"],\"auth_token\": \"" + Configuracion.parametro("oauth") + "\"}}";
                               await clienteTopic.SendAsync(new ArraySegment<byte>(arrayBytes(mensaje)), System.Net.WebSockets.WebSocketMessageType.Text, true, cancellationToken2);
                               break;
+                           case 1:
+                              if (respuesta != ESPERAS[0]) {
+                                 JSON respuestaJSON = new JSON();
+                                 respuestaJSON.parse(respuesta);
+                                 switch (respuestaJSON["type"].ToString()) {
+                                    case "MESSAGE":
+                                       if (respuestaJSON["data"]["topic"].ToString()== "whispers."+ Configuracion.parametro("id_usuario")){
+                                          string texto = ((Entidad) respuestaJSON["data"]["message"])["body"].ToString();
+                                          double puntuacion = toxicidad(texto);
 
+                                          tratarMensaje(texto, puntuacion);
+                                          if (enBaseDatos) {
+                                             BD.ejecutar("insert into mensajes (idEstado, idUsuario, mensaje,puntuacion) values (1,1, '" + texto.Replace("\"", "\\\"") + "'," + puntuacion.ToString().Replace(",", ".") + ")");
+                                          }
+                                       }
+                                       break;
+                                 }
+
+                                 System.IO.File.AppendAllText("sucripcion.txt", respuesta + "\r\n");
+                              }
+                              
+                              break;
 
                         }
-                        if (respuesta == "PING :tmi.twitch.tv") {
-                           await clienteTopic.SendAsync(new ArraySegment<byte>(arrayBytes("PONG :tmi.twitch.tv")), System.Net.WebSockets.WebSocketMessageType.Text, true, cancellationToken2);
-                        } else {
-                           if (estado > 0) {
-                              //System.Diagnostics.Trace.WriteLine(respuesta);
-                              //System.Diagnostics.Trace.WriteLine(toxicidad(respuesta));
-                              while (mensajesEnviar.Count > 0) {
-                                 string mensajeTexto = "PRIVMSG #" + Configuracion.parametro("canal") + " :" + mensajesEnviar[0];
-                                 await clienteTopic.SendAsync(new ArraySegment<byte>(arrayBytes(mensajeTexto)), System.Net.WebSockets.WebSocketMessageType.Text, true, cancellationToken2);
-                                 mensajesEnviar.RemoveAt(0);
-                              }
-                              System.Text.RegularExpressions.Match coincidencias = regEx.Match(respuesta);
-                              if (coincidencias.Success) {
-                                 string[] partes = regEx.GetGroupNames();
-                                 //System.Text.RegularExpressions.Group grp
-                                 /*foreach (string nombre in partes) {
-                                    System.Text.RegularExpressions.Group grp = coincidencias.Groups[nombre];
-                                    //Console.WriteLine("   {0}: '{1}'", name, grp.Value);
-                                 }*/
-                                 System.Diagnostics.Trace.WriteLine((coincidencias.Groups["0"].Value));
-                                 System.Diagnostics.Trace.WriteLine("" + (coincidencias.Groups["2"].Value) + " = " + (coincidencias.Groups["6"].Value));
-                                 string aliasUsuario = coincidencias.Groups["2"].Value.ToLower();
-                                 long idUsuario = -1;
-                                 try {
-                                    Datos usuarios = BD.consulta("select id,avatar from usuarios where nombre='" + aliasUsuario + "'");
-                                    if (usuarios.Length == 0) {
-                                       String avatar = null;
-                                       try {
-                                          JSON usuario = infoUsuario(aliasUsuario);
-                                          avatar = usuario["data"][0]["profile_image_url"].ToString();
-                                       } catch { }
-
-                                       int numeroAfectados = BD.ejecutar("insert into usuarios (nombre, avatar) values ('" + aliasUsuario + "'," + (avatar != null ? "'" + avatar + "'" : "null") + ")");
-                                       if (numeroAfectados == 1) {
-                                          idUsuario = BD.id;
-                                       }
-                                    } else {
-                                       if (usuarios[0]["avatar"] == null || usuarios[0]["avatar"].ToString().Length == 0) {
-                                          JSON usuario = infoUsuario(aliasUsuario);
-                                          string avatar = usuario["data"][0]["profile_image_url"].ToString();
-                                          BD.ejecutar("update usuarios set avatar='" + avatar + "' where nombre='" + aliasUsuario + "'");
-                                       }
-                                       idUsuario = long.Parse(usuarios[0]["id"].ToString());
-                                    }
-                                    string texto = coincidencias.Groups["6"].Value;
-                                    double puntuacion = toxicidad(texto);
-
-                                    tratarMensaje(texto, puntuacion);
-                                    if (enBaseDatos) {
-                                       BD.ejecutar("insert into mensajes (idEstado, idUsuario, mensaje,puntuacion) values (1," + idUsuario + ", '" + texto.Replace("\"", "\\\"") + "'," + puntuacion.ToString().Replace(",", ".") + ")");
-                                    }
-                                 } catch { }
-
-
-                              }
-
-
-                           }
-                        }
+                        
                      }
                   }
-                  resultado = await clienteTopic.ReceiveAsync(buffer, cancellationToken);
+                  try {
+                     resultado = await clienteTopic.ReceiveAsync(buffer, cancellationToken);
+                  }catch(Exception ex1) {
+                     System.Diagnostics.Trace.WriteLine(ex1.Message);
+                  }
                }
                //resultado.
                //System.Diagnostics.Trace.WriteLine(arrayString(bufferByte));
@@ -261,19 +238,38 @@ namespace Mensajería.chat {
          }
 
       }
+ 
 
 
+      private string ponerEmoticonos(string texto) {
+         string miTexto = texto;
+         string[] palabras = miTexto.Split(new char[] { ' ' });
+         foreach(string palabra in palabras) {
+            string palabraCorregida = palabra.Replace("'", "''");
+            string consulta = "select * from emoticonos where regex='" + palabraCorregida + "'";
+            Datos datos = BD.consulta(consulta);
+            if (datos.Length > 0) {
+               miTexto = miTexto.Replace(palabraCorregida, "%" + datos[0]["id"].ToString() + "%");
+            }
+         }
+         return miTexto;
+      }
+      private string tratarMensaje(string texto, double puntuacion) {
+         string miTexto = ponerEmoticonos(texto);
+
+  
 
 
-      private void tratarMensaje(string texto, double puntuacion) {
          if (puntuacion < 0.7) {
             texto = texto.Trim().ToLower();
             if (texto.IndexOf("hola")>=0) {
                mensaje = "¿Que tal?";
             }
          }
+         return miTexto;
       }
       #region "API"
+      static public System.Collections.Generic.List<string> nuevosSeguidores=new List<string>();
       static public int seguidores(string usuario) {
          int respuesta = 0;
          /*curl - H 'Client-ID: uo6dggojyb8d6soh92zknwmi5ej1q2' \
@@ -282,42 +278,69 @@ namespace Mensajería.chat {
          JSON json = new JSON();
          ArrayList cabeceras = new ArrayList();
          cabeceras.Add("Client-ID: " + Configuracion.parametro("id_cliente"));
-
+         if (!seguidoresControlados) {
+            BD.ejecutar("update usuarios set siguiendo=0 ");
+         }
          json.cargarJson("https://api.twitch.tv/helix/users/follows?to_id=" + usuario, cabeceras);
 
          respuesta = int.Parse(json["total"].ToString());
          if (respuesta != listaSeguidores.Count) {
-            listaSeguidores = new ArrayList();
+            if (!seguidoresControlados) {
+               listaSeguidores = new ArrayList();
+            }
 
-            int limite = 10000;
+            int limite = (!seguidoresControlados ? 1000:1);
 
             while (limite-- > 0 && listaSeguidores.Count < respuesta) {
                foreach (Dictionary<string, Entidad> dato in (List<Dictionary<string, Entidad>>)json["data"].valor) {
                   try {
-                     listaSeguidores.Add(dato["from_name"]);
-                     Datos usuarios = BD.consulta("select id,avatar from usuarios where nombre='" + dato["from_name"] + "'");
+                     if (!seguidoresControlados) {
+                        listaSeguidores.Add(dato["from_name"]);
+                     }
+                     Datos usuarios = BD.consulta("select id,avatar,siguiendo from usuarios where nombre='" + dato["from_name"].ToString().ToLower() + "'");
                      if (usuarios.Length == 0) {
                         String avatar = null;
                         JSON usuarioJSON = infoUsuario(dato["from_name"].ToString());
                         avatar = usuarioJSON["data"][0]["profile_image_url"].ToString();
 
                         BD.ejecutar("insert into usuarios (nombre, avatar,siguiendo) values ('" + dato["from_name"].ToString().ToLower() + "'," + (avatar != null ? "'" + avatar + "'" : "null") + ",1)");
+                        if (seguidoresControlados) {
+                           nuevosSeguidores.Add(dato["from_name"].ToString());
+                        }
+                        
                      } else {
                         if (usuarios[0]["avatar"] == null || usuarios[0]["avatar"].ToString().Length == 0) {
                            JSON usuarioJSON = infoUsuario(dato["from_name"].ToString());
                            string avatar = usuarioJSON["data"][0]["profile_image_url"] != null ? usuarioJSON["data"][0]["profile_image_url"].ToString() : null;
-                           BD.ejecutar("update usuarios set avatar='" + avatar + "', siguiendo=1 where nombre='" + dato["from_name"].ToString().ToLower() + "'");
-
+                           BD.ejecutar("update usuarios set avatar='" + avatar + "' where nombre='" + dato["from_name"].ToString().ToLower() + "'");
+                        }
+                        if (usuarios[0]["siguiendo"].ToString() == "0") {
+                           if (seguidoresControlados) {
+                              nuevosSeguidores.Add(dato["from_name"].ToString());
+                           }
+                           BD.ejecutar("update usuarios set siguiendo=1 where nombre='" + dato["from_name"].ToString().ToLower() + "'");
                         }
                      }
-                  } catch { }
+                  } catch(Exception ex) {
+                     System.Diagnostics.Trace.WriteLine(ex.Message);
+                  }
                }
                try {
-                  string siguiente = json["pagination"]["cursor"].ToString();
-                  json.cargarJson("https://api.twitch.tv/helix/users/follows?to_id=" + usuario + "&after=" + siguiente, cabeceras);
+                  if (!seguidoresControlados) {
+                     string siguiente = json["pagination"]["cursor"].ToString();
+                     json.cargarJson("https://api.twitch.tv/helix/users/follows?to_id=" + usuario + "&after=" + siguiente, cabeceras);
+                  }
                } catch (Exception ex) { System.Diagnostics.Trace.WriteLine(ex.Message); }
             }
          }
+         if (seguidoresControlados) {
+            foreach (string nuevoSeguidor in nuevosSeguidores) {
+               if (!listaSeguidores.Contains(nuevoSeguidor)) {
+                  listaSeguidores.Add(nuevoSeguidor);
+               }
+            }
+         }
+         seguidoresControlados = true;
 
          return respuesta;
       }
