@@ -1,0 +1,2 @@
+﻿ALTER TABLE usuarios
+ADD COLUMN userID VARCHAR(15) NULL AFTER nombre;

@@ -37,7 +37,7 @@ namespace Mensajería{
          Datos resultado = new Datos();
 
          if (conexion == null) {
-            conexion = new MySql.Data.MySqlClient.MySqlConnection("Database=" + System.Configuration.ConfigurationManager.AppSettings["base_datos"] + ";Data Source=" + System.Configuration.ConfigurationManager.AppSettings["servidor"] + ";User Id=" + System.Configuration.ConfigurationManager.AppSettings["usuario"] + ";Password=" + System.Configuration.ConfigurationManager.AppSettings["clave"]);
+            conexion = new MySql.Data.MySqlClient.MySqlConnection("Database=" + System.Configuration.ConfigurationManager.AppSettings["base_datos"] + ";Data Source=" + System.Configuration.ConfigurationManager.AppSettings["servidor"] + ";User Id=" + System.Configuration.ConfigurationManager.AppSettings["usuario"] + ";Password=" + System.Configuration.ConfigurationManager.AppSettings["clave"]+ ";CharSet=utf8");
                 //conexion.Open();
          }
 
@@ -65,9 +65,12 @@ namespace Mensajería{
          
          return resultado;
       }
+      /**
+       * Ejecuta la consulta y devuelve el resultado , Ojo, se ha de cerrar la conexión
+       * */
       public static int ejecutar(string consulta) { 
          if (conexion == null) { 
-            conexion = new MySql.Data.MySqlClient.MySqlConnection("Database=" + System.Configuration.ConfigurationManager.AppSettings["base_datos"] + ";Data Source=" + System.Configuration.ConfigurationManager.AppSettings["servidor"] + ";User Id=" + System.Configuration.ConfigurationManager.AppSettings["usuario"] + ";Password=" + System.Configuration.ConfigurationManager.AppSettings["clave"]);
+            conexion = new MySql.Data.MySqlClient.MySqlConnection("Database=" + System.Configuration.ConfigurationManager.AppSettings["base_datos"] + ";Data Source=" + System.Configuration.ConfigurationManager.AppSettings["servidor"] + ";User Id=" + System.Configuration.ConfigurationManager.AppSettings["usuario"] + ";Password=" + System.Configuration.ConfigurationManager.AppSettings["clave"]+";charset=utf8mb4");
             //conexion.Open();
          }
          int resultado = 0;

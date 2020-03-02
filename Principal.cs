@@ -23,6 +23,7 @@ namespace Mensajería {
       static public int suscriptores = 0;
       static public string mensajeBienvenida = "Bienvenido al canal :D";
       Size tamañoEscritorio;
+
       chat.Twitch twitch;
       Alerta imagenEspectador = null;
       Alerta imagenFugaEspectador =null;
@@ -48,6 +49,10 @@ namespace Mensajería {
             conexion = new MySql.Data.MySqlClient.MySqlConnection("Database="+System.Configuration.ConfigurationManager.AppSettings["base_datos"] +";Data Source="+ System.Configuration.ConfigurationManager.AppSettings["servidor"] + ";User Id="+ System.Configuration.ConfigurationManager.AppSettings["usuario"]+ ";Password="+ System.Configuration.ConfigurationManager.AppSettings["clave"]);
             //conexion.Open();
          }/**/
+         //chat.Discord.autenticacion();
+         //chat.Discord.cogerMensajes("678195044817174532");
+         //return;
+
          ultimaConexión = DateTime.Now;
          tamañoEscritorio = Screen.PrimaryScreen.WorkingArea.Size;
          this.Height = tamañoEscritorio.Height - 50;
@@ -57,8 +62,8 @@ namespace Mensajería {
          this.TopLevel = true;
          this.TopMost = true;
 
-         JSON json = new JSON();
-         /*
+         /*JSON json = new JSON();
+         
           {
              "primero " :"1",
             "segundo":2,
@@ -91,19 +96,46 @@ namespace Mensajería {
          nuevoMensaje("3 Lorem Ipsum is", 0.7);
          nuevoMensaje("4 Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s.Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s.", 0.7);
          /**/
+         //nuevoMensaje("2 Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard %15940% dummy text ever since the 1500s.Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s.", 0.7);
+
+
+
 
          /*extensionTwitch.ExtensionTwitch extension = new extensionTwitch.ExtensionTwitch();
          Controls.Add(extension); 
          extension.Top = 200;
          extension.Left = 700;
-         extension.Width = 600;
-         extension.Height = 400;
-         extension.Visible = true;
 
+         extension.Width = 600;
+         extension.Height = 100;
+         extension.Visible = true;
+         extension.onRaton += moverRatonExtensionTwitch;
 
          seguidores = chat.Twitch.seguidores(Configuracion.parametro("id_usuario"));
 
          return;/**/
+
+
+         /*Datos usuarios = BD.consulta("select * from usuarios where userID is null");
+         for(int i = 0; i < usuarios.Length; i++) {
+            JSON user = chat.Twitch.infoUsuario(usuarios[i]["alias"].ToString());
+            if(user.hayClave("data") && user["data"].Length > 0) {
+               BD.ejecutar("update usuarios set nombre='" + user["data"][0]["display_name"].ToString() + "', userID='" + user["data"][0]["id"].ToString() + "' where id=" + usuarios[i]["id"].ToString());
+            }
+         }*/
+
+
+         //JSON tableroTrello = integraciones.Trello.cogerTablero("2Wu1jM2U");
+         /*JSON tableroTrello = integraciones.Trello.cogerTableros("programcionextrema");
+         tableroTrello = integraciones.Trello.cogerTablero("2Wu1jM2U");
+         return;*/
+
+
+
+
+
+
+
 
          twitch = new chat.Twitch(Configuracion.parametro("oauth"), Configuracion.parametro("canal"));
          if (debug) {
@@ -182,9 +214,12 @@ namespace Mensajería {
          if (numMensajes <= 3) {
             string limite = " limit 1";
             string parametros = (ultimoId != 0 ? " and m.id>" + ultimoId : " and m.id >= (select id from mensajes order by id desc limit 1)");
+
+            parametros = " and idEstado<>5";
+
             //string parametros = (ultimoId != 0 ? " and m.id>" + ultimoId : " and m.id >= 681");
             string consulta="select m.id id, m.fecha, m.idEstado,"
-               + " e.nombre, u.nombre usuario, m.mensaje mensaje, u.avatar avatar, m.puntuacion puntuacion"
+               + " e.nombre, u.alias usuario, m.mensaje mensaje, u.avatar avatar, m.puntuacion puntuacion"
                + " from mensajes m, estados e, usuarios u where e.id=m.idEstado and u.id=idUsuario"
                + " and date_format(m.fecha,'%d/%m/%Y')=date_format(now(),'%d/%m/%Y')"
                + parametros
@@ -195,6 +230,7 @@ namespace Mensajería {
             for (int i=0;i<datos.Length;i++) {
                Dictionary<string, object> fila = datos[i];
                if (ultimoId != 0) {
+                  BD.ejecutar("update mensajes set idEstado=5 where id=" + fila["id"]);
                   nuevoMensaje((string)fila["mensaje"], (double)fila["puntuacion"], fila["avatar"].ToString(), (string)fila["usuario"]);
                }
 
@@ -594,5 +630,35 @@ namespace Mensajería {
          //((Control)sender).Top = tamañoEscritorio.Height - ((Control)sender).Height;
       }
 
+
+      PictureBox fantasma = null;
+      private void moverRatonExtensionTwitch(double x, double y) {
+         if (fantasma == null) {
+            fantasma = new PictureBox();
+            fantasma.Image = Image.FromFile("recursos/fantasma.png");
+            fantasma.Width = 64;
+            fantasma.Height = 64;
+            fantasma.Visible = true;
+            
+            Controls.Add(fantasma);
+            Controls.SetChildIndex(fantasma, 0);
+         }
+         fantasma.Top = (int)(y*tamañoEscritorio.Height);
+         fantasma.Left = (int)(x*tamañoEscritorio.Width);
+         /*this.Cursor = new Cursor(Cursor.Current.Handle);
+         Cursor.Position = new Point((int)x,(int)y);*/
+      }
+
+      bool estoyEnGrande = false;
+      private void button1_Click(object sender, EventArgs e) {
+         if (!estoyEnGrande) {
+            //chat.OBS.enviarComando("CE Camara en grande");
+            chat.OBS.enviarComando("CF Texto:true");
+         } else {
+            //chat.OBS.enviarComando("CE Escena");
+            chat.OBS.enviarComando("CF Texto:false");
+         }
+         estoyEnGrande = !estoyEnGrande;
+      }
    }
 }

@@ -262,7 +262,7 @@ namespace Mensajería {
                   } catch { }
                }
                soyPalabra = false;
-            }
+            }/**/
 
             float tamañoPalabra = soyPalabra ? e.Graphics.MeasureString(palabra, texto.Font).Width : 28 ;
             if ((x + tamañoEspacio + tamañoPalabra) < ancho) {

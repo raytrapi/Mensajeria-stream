@@ -71,6 +71,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="chat\Discord.cs" />
+    <Compile Include="chat\DiscordWEB.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="chat\DiscordWEB.Designer.cs">
+      <DependentUpon>DiscordWEB.cs</DependentUpon>
+    </Compile>
+    <Compile Include="chat\OBS.cs" />
+    <Compile Include="LOG.cs" />
     <Compile Include="controles\Alerta.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -131,8 +140,12 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
+    <Compile Include="integraciones\Trello.cs" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="chat\DiscordWEB.resx">
+      <DependentUpon>DiscordWEB.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="controles\Alerta.resx">
       <DependentUpon>Alerta.cs</DependentUpon>
     </EmbeddedResource>
@@ -165,6 +178,7 @@
   <ItemGroup>
     <Content Include="scripts\base.sql" />
     <Content Include="scripts\emoticonos.sql" />
+    <Content Include="scripts\modificacion_usuarios.sql" />
     <Content Include="scripts\usuarios_siguiendo.sql" />
   </ItemGroup>
   <ItemGroup>

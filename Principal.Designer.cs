@@ -41,6 +41,7 @@
          this.label1 = new System.Windows.Forms.Label();
          this.marquesina = new System.Windows.Forms.Label();
          this.controlDirecto2 = new System.Windows.Forms.Timer(this.components);
+         this.button1 = new System.Windows.Forms.Button();
          this.menuBandeja.SuspendLayout();
          this.panelHoraLimite.SuspendLayout();
          this.SuspendLayout();
@@ -62,36 +63,36 @@
             this.toolStripSeparator1,
             this.cerrarToolStripMenuItem});
          this.menuBandeja.Name = "menuBandeja";
-         this.menuBandeja.Size = new System.Drawing.Size(232, 88);
+         this.menuBandeja.Size = new System.Drawing.Size(196, 82);
          // 
          // mensajeDeBienvenidaToolStripMenuItem
          // 
          this.mensajeDeBienvenidaToolStripMenuItem.Name = "mensajeDeBienvenidaToolStripMenuItem";
-         this.mensajeDeBienvenidaToolStripMenuItem.Size = new System.Drawing.Size(231, 24);
+         this.mensajeDeBienvenidaToolStripMenuItem.Size = new System.Drawing.Size(195, 22);
          this.mensajeDeBienvenidaToolStripMenuItem.Text = "Mensaje de Bienvenida";
          this.mensajeDeBienvenidaToolStripMenuItem.Click += new System.EventHandler(this.mensajeDeBienvenidaToolStripMenuItem_Click);
          // 
          // toolStripMenuItem1
          // 
          this.toolStripMenuItem1.Name = "toolStripMenuItem1";
-         this.toolStripMenuItem1.Size = new System.Drawing.Size(228, 6);
+         this.toolStripMenuItem1.Size = new System.Drawing.Size(192, 6);
          // 
          // horaLímiteToolStripMenuItem
          // 
          this.horaLímiteToolStripMenuItem.Name = "horaLímiteToolStripMenuItem";
-         this.horaLímiteToolStripMenuItem.Size = new System.Drawing.Size(231, 24);
+         this.horaLímiteToolStripMenuItem.Size = new System.Drawing.Size(195, 22);
          this.horaLímiteToolStripMenuItem.Text = "Hora límite";
          this.horaLímiteToolStripMenuItem.Click += new System.EventHandler(this.horaLímiteToolStripMenuItem_Click);
          // 
          // toolStripSeparator1
          // 
          this.toolStripSeparator1.Name = "toolStripSeparator1";
-         this.toolStripSeparator1.Size = new System.Drawing.Size(228, 6);
+         this.toolStripSeparator1.Size = new System.Drawing.Size(192, 6);
          // 
          // cerrarToolStripMenuItem
          // 
          this.cerrarToolStripMenuItem.Name = "cerrarToolStripMenuItem";
-         this.cerrarToolStripMenuItem.Size = new System.Drawing.Size(231, 24);
+         this.cerrarToolStripMenuItem.Size = new System.Drawing.Size(195, 22);
          this.cerrarToolStripMenuItem.Text = "Cerrar";
          this.cerrarToolStripMenuItem.Click += new System.EventHandler(this.CerrarToolStripMenuItem_Click);
          // 
@@ -111,15 +112,14 @@
          // 
          this.panelMensajes.Dock = System.Windows.Forms.DockStyle.Left;
          this.panelMensajes.Location = new System.Drawing.Point(0, 0);
-         this.panelMensajes.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+         this.panelMensajes.Margin = new System.Windows.Forms.Padding(2);
          this.panelMensajes.Name = "panelMensajes";
-         this.panelMensajes.Padding = new System.Windows.Forms.Padding(0, 0, 0, 48);
-         this.panelMensajes.Size = new System.Drawing.Size(645, 778);
+         this.panelMensajes.Padding = new System.Windows.Forms.Padding(0, 0, 0, 39);
+         this.panelMensajes.Size = new System.Drawing.Size(484, 632);
          this.panelMensajes.TabIndex = 1;
          // 
          // controlGitter
          // 
-         this.controlGitter.Enabled = true;
          this.controlGitter.Interval = 1000;
          this.controlGitter.Tick += new System.EventHandler(this.timer1_Tick);
          // 
@@ -128,10 +128,10 @@
          this.horaLimite.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
          this.horaLimite.Dock = System.Windows.Forms.DockStyle.Fill;
          this.horaLimite.Font = new System.Drawing.Font("Roboto", 11.26957F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-         this.horaLimite.Location = new System.Drawing.Point(5, 23);
-         this.horaLimite.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+         this.horaLimite.Location = new System.Drawing.Point(4, 19);
+         this.horaLimite.Margin = new System.Windows.Forms.Padding(2);
          this.horaLimite.Name = "horaLimite";
-         this.horaLimite.Size = new System.Drawing.Size(151, 29);
+         this.horaLimite.Size = new System.Drawing.Size(113, 26);
          this.horaLimite.TabIndex = 2;
          this.horaLimite.Leave += new System.EventHandler(this.horaLimite_Leave);
          // 
@@ -140,11 +140,11 @@
          this.panelHoraLimite.BackColor = System.Drawing.Color.White;
          this.panelHoraLimite.Controls.Add(this.horaLimite);
          this.panelHoraLimite.Controls.Add(this.label1);
-         this.panelHoraLimite.Location = new System.Drawing.Point(661, 21);
-         this.panelHoraLimite.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+         this.panelHoraLimite.Location = new System.Drawing.Point(496, 17);
+         this.panelHoraLimite.Margin = new System.Windows.Forms.Padding(2);
          this.panelHoraLimite.Name = "panelHoraLimite";
-         this.panelHoraLimite.Padding = new System.Windows.Forms.Padding(5);
-         this.panelHoraLimite.Size = new System.Drawing.Size(161, 63);
+         this.panelHoraLimite.Padding = new System.Windows.Forms.Padding(4);
+         this.panelHoraLimite.Size = new System.Drawing.Size(121, 51);
          this.panelHoraLimite.TabIndex = 3;
          this.panelHoraLimite.Visible = false;
          // 
@@ -152,9 +152,10 @@
          // 
          this.label1.Dock = System.Windows.Forms.DockStyle.Top;
          this.label1.Font = new System.Drawing.Font("Roboto Light", 10.01739F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-         this.label1.Location = new System.Drawing.Point(5, 5);
+         this.label1.Location = new System.Drawing.Point(4, 4);
+         this.label1.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
          this.label1.Name = "label1";
-         this.label1.Size = new System.Drawing.Size(151, 18);
+         this.label1.Size = new System.Drawing.Size(113, 15);
          this.label1.TabIndex = 3;
          this.label1.Text = "Termina en:";
          this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -164,9 +165,10 @@
          this.marquesina.AutoSize = true;
          this.marquesina.BackColor = System.Drawing.SystemColors.ControlLightLight;
          this.marquesina.Font = new System.Drawing.Font("Roboto", 13.77391F, ((System.Drawing.FontStyle)((System.Drawing.FontStyle.Bold | System.Drawing.FontStyle.Italic))), System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-         this.marquesina.Location = new System.Drawing.Point(732, 196);
+         this.marquesina.Location = new System.Drawing.Point(549, 159);
+         this.marquesina.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
          this.marquesina.Name = "marquesina";
-         this.marquesina.Size = new System.Drawing.Size(128, 27);
+         this.marquesina.Size = new System.Drawing.Size(109, 23);
          this.marquesina.TabIndex = 4;
          this.marquesina.Text = "marquesina";
          this.marquesina.Visible = false;
@@ -174,19 +176,30 @@
          // controlDirecto2
          // 
          this.controlDirecto2.Enabled = true;
-         this.controlDirecto2.Interval = 2000;
+         this.controlDirecto2.Interval = 30000;
          this.controlDirecto2.Tick += new System.EventHandler(this.controlDirecto2_Tick);
+         // 
+         // button1
+         // 
+         this.button1.Location = new System.Drawing.Point(533, 511);
+         this.button1.Name = "button1";
+         this.button1.Size = new System.Drawing.Size(75, 23);
+         this.button1.TabIndex = 5;
+         this.button1.Text = "button1";
+         this.button1.UseVisualStyleBackColor = true;
+         this.button1.Click += new System.EventHandler(this.button1_Click);
          // 
          // Principal
          // 
-         this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
+         this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
          this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-         this.ClientSize = new System.Drawing.Size(1648, 778);
+         this.ClientSize = new System.Drawing.Size(1236, 632);
+         this.Controls.Add(this.button1);
          this.Controls.Add(this.marquesina);
          this.Controls.Add(this.panelHoraLimite);
          this.Controls.Add(this.panelMensajes);
          this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
-         this.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+         this.Margin = new System.Windows.Forms.Padding(2);
          this.Name = "Principal";
          this.ShowInTaskbar = false;
          this.StartPosition = System.Windows.Forms.FormStartPosition.Manual;
@@ -223,5 +236,6 @@
       private System.Windows.Forms.Label label1;
       private System.Windows.Forms.Label marquesina;
       private System.Windows.Forms.Timer controlDirecto2;
-   }
+        private System.Windows.Forms.Button button1;
+    }
 }

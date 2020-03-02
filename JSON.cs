@@ -14,6 +14,9 @@ namespace Mensajería {
          valor = _valor;
          tipo = _tipo;
       }
+      public bool hayClave(string clave) {
+         return tipo == TIPO_ENTIDAD.Entidad && ((Dictionary<String, Entidad>)valor).ContainsKey(clave);
+      }
       public Object this[string clave] {
          get {
             if (tipo == TIPO_ENTIDAD.Entidad) {
@@ -26,6 +29,26 @@ namespace Mensajería {
                return this;
             }
          }
+      }
+      public Object cogerValor(string clave) {
+         string[] claves = clave.Split(new char[] { '.' });
+         Entidad objeto = this;
+         for(int i = 0; i < claves.Length && objeto!=null; i++) {
+            clave = claves[i];
+            if (objeto.tipo == TIPO_ENTIDAD.Entidad) {
+               if (((Dictionary<String, Entidad>)objeto.valor).ContainsKey(clave)) {
+                  objeto = ((Dictionary<String, Entidad>)objeto.valor)[clave];
+               } else {
+                  objeto = null;
+               }
+            } else {
+               objeto = this;
+            }
+         }
+         if (objeto != null) {
+            return objeto.valor;
+         }
+         return null;
       }
       public Dictionary<string, Entidad> this[int clave] {
          get {
@@ -70,7 +93,13 @@ namespace Mensajería {
          }
          
       }
+      public bool hayClave(string clave) {
+         return _json!=null && _json.ContainsKey(clave);
+      }
       public bool esVacio() {
+         if (_json == null) {
+            return true;
+         }
          return _json.Count == 0;
       }
 
@@ -102,20 +131,22 @@ namespace Mensajería {
             string json_texto = leerStream(respuesta.GetResponseStream());
             parse(json_texto);
          }catch(Exception ex) {
-            System.Diagnostics.Trace.WriteLine(ex.Message);
+            System.Diagnostics.Trace.WriteLine("ERROR AL CARGAR JSON. \r\n"+ex.Message);
          }
       }
       private string leerStream(System.IO.Stream stream) {
-         byte []buffer=new byte[1000];
+         UTF8Encoding utf8 = new UTF8Encoding();
+         byte []buffer=new byte[10000];
          string resultado = "";
          int leidos = 100;
          while (leidos > 0) {
-            leidos = stream.Read(buffer, 0, 1000);
-            for(int i = 0; i < leidos; i++) {
+            leidos = stream.Read(buffer, 0, 10000);
+            resultado+=utf8.GetString(buffer);
+            /*for (int i = 0; i < leidos; i++) {
                resultado += (char)buffer[i];
-            }
+            }*/
          }
-
+         
          return resultado;
       }
       public Entidad this[string clave] {
